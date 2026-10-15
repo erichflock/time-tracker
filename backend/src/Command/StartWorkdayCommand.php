@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,15 +23,15 @@ final class StartWorkdayCommand extends Command
     {
         $this
         ->addArgument('date', InputArgument::OPTIONAL, 'The date of the workday (d.m.Y)', date('d.m.Y'))
-        ->addArgument('time', InputArgument::OPTIONAL, 'The time of the workday', '09:00');
+        ->addArgument('startTime', InputArgument::OPTIONAL, 'The start time of the workday', '09:00');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $date = \DateTimeImmutable::createFromFormat('d.m.Y', $input->getArgument('date'));
-        $time = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('time'));
+        $startTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('startTime'));
 
-        $workday = new Workday($date, $time);
+        $workday = new Workday($date, $startTime);
 
         #$output->writeln(sprintf('Workday started at %s on %s', $workday->getTime()->format('H:i'), $workday->getDate()->format('d.m.Y')));
         $this->repository->save($workday);

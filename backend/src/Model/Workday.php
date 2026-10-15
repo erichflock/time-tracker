@@ -5,14 +5,14 @@ namespace App\Model;
 final class Workday
 {
     private \DateTimeImmutable $date;
-    private \DateTimeImmutable $time;
+    private \DateTimeImmutable $startTime;
 
     public function __construct(
         \DateTimeImmutable $date,
-        \DateTimeImmutable $time
+        \DateTimeImmutable $startTime
     ) {
         $this->date = $date;
-        $this->time = $time;
+        $this->startTime = $startTime;
     }
 
     public function getDate(): \DateTimeImmutable
@@ -20,8 +20,8 @@ final class Workday
         return $this->date;
     }
 
-    public function getTime(): \DateTimeImmutable
+    public function getStartTime(): \DateTimeImmutable
     {
-        return $this->time;
+        return $this->startTime;
     }
 }
