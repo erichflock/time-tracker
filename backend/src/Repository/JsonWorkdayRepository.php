@@ -29,9 +29,27 @@ final class JsonWorkdayRepository
         $key = $workday->getDate()->format('d.m.Y');
         $workdays[$key] = [
             'date' => $workday->getDate()->format('d.m.Y'),
-            'time' => $workday->getTime()->format('H:i'),
+            'startTime' => $workday->getStartTime()->format('H:i'),
         ];
 
         file_put_contents($this->filePath, json_encode($workdays, JSON_PRETTY_PRINT));
+    }
+
+    public function find(string $date): ?Workday
+    {
+        $content = file_get_contents($this->filePath);
+        $workdays = json_decode($content, true) ?? [];
+
+        $key = $date;
+        $data = $workdays[$key] ?? null;
+
+        if (!$data) {
+            return null;
+        }
+
+        return new Workday(
+            \DateTimeImmutable::createFromFormat('d.m.Y', $data['date']),
+            \DateTimeImmutable::createFromFormat('H:i', $data['startTime'])
+        );
     }
 }
