@@ -22,18 +22,26 @@ final class StartWorkdayCommand extends Command
     protected function configure()
     {
         $this
-        ->addArgument('date', InputArgument::OPTIONAL, 'The date of the workday (d.m.Y)', date('d.m.Y'))
-        ->addArgument('startTime', InputArgument::OPTIONAL, 'The start time of the workday', '09:00');
+        ->addArgument('date', InputArgument::OPTIONAL, 'The date of the workday (d.m.Y)')
+        ->addArgument('startTime', InputArgument::OPTIONAL, 'The start time of the workday');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $date = \DateTimeImmutable::createFromFormat('d.m.Y', $input->getArgument('date'));
+        if (!$date) {
+            $output->writeln(sprintf('Invalid date format %s', $input->getArgument('date')));
+            return Command::FAILURE;
+        }
+
         $startTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('startTime'));
+        if (!$startTime) {
+            $output->writeln(sprintf('Invalid start time format %s', $input->getArgument('startTime')));
+            return Command::FAILURE;
+        }
 
-        $workday = new Workday($date, $startTime);
+        $workday = new Workday($date, $startTime, null);
 
-        #$output->writeln(sprintf('Workday started at %s on %s', $workday->getTime()->format('H:i'), $workday->getDate()->format('d.m.Y')));
         $this->repository->save($workday);
 
         return Command::SUCCESS;
