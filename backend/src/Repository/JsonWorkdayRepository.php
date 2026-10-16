@@ -74,4 +74,23 @@ final class JsonWorkdayRepository
 
         return $workday;
     }
+
+    public function findAll(): array
+    {
+        $content = file_get_contents($this->filePath);
+        $workdays = json_decode($content, true) ?? [];
+        return array_map(function (array $data) {
+            return new Workday(
+                \DateTimeImmutable::createFromFormat('d.m.Y', $data['date']),
+                \DateTimeImmutable::createFromFormat('H:i', $data['startTime']),
+                $data['endTime'] ? \DateTimeImmutable::createFromFormat('H:i', $data['endTime']) : null,
+                array_map(function (array $pauseData) {
+                    return new Pause(
+                        \DateTimeImmutable::createFromFormat('H:i', $pauseData['startTime']),
+                        \DateTimeImmutable::createFromFormat('H:i', $pauseData['endTime']),
+                    );
+                }, $data['pauses'] ?? [])
+            );
+        }, $workdays);
+    }
 }

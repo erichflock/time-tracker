@@ -9,16 +9,18 @@ final class Workday
     private \DateTimeImmutable $date;
     private \DateTimeImmutable $startTime;
     private ?\DateTimeImmutable $endTime;
-    private array $pauses = [];
+    private array $pauses;
 
     public function __construct(
         \DateTimeImmutable $date,
         \DateTimeImmutable $startTime,
-        ?\DateTimeImmutable $endTime
+        ?\DateTimeImmutable $endTime,
+        array $pauses = []
     ) {
         $this->date = $date;
         $this->startTime = $startTime;
         $this->endTime = $endTime;
+        $this->pauses = $pauses;
     }
 
     public function getDate(): \DateTimeImmutable
