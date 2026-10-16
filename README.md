@@ -55,7 +55,7 @@ Commands:
 - workday:show <date>
 - workday:start <date> <time>
 - workday:add-pause <date> <start> <end>
-- workday:finish <date> <time>
+- workday:end <date> <time>
 - workday:summary <date>
 
 Behavior:
