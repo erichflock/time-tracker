@@ -2,11 +2,14 @@
 
 namespace App\Model;
 
+use App\Model\Pause;
+
 final class Workday
 {
     private \DateTimeImmutable $date;
     private \DateTimeImmutable $startTime;
     private ?\DateTimeImmutable $endTime;
+    private array $pauses = [];
 
     public function __construct(
         \DateTimeImmutable $date,
@@ -36,5 +39,15 @@ final class Workday
     public function setEndTime(\DateTimeImmutable $endTime): void
     {
         $this->endTime = $endTime;
+    }
+
+    public function getPauses(): array
+    {
+        return $this->pauses;
+    }
+
+    public function addPause(Pause $pause): void
+    {
+        $this->pauses[] = $pause;
     }
 }

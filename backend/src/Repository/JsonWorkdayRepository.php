@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Model\Workday;
+use App\Model\Pause;
 
 final class JsonWorkdayRepository
 {
@@ -31,6 +32,12 @@ final class JsonWorkdayRepository
             'date' => $workday->getDate()->format('d.m.Y'),
             'startTime' => $workday->getStartTime()->format('H:i'),
             'endTime' => $workday->getEndTime() ? $workday->getEndTime()->format('H:i') : null,
+            'pauses' => array_map(function (Pause $pause) {
+                return [
+                    'startTime' => $pause->getStartTime()->format('H:i'),
+                    'endTime' => $pause->getEndTime()->format('H:i'),
+                ];
+            }, $workday->getPauses()),
         ];
 
         file_put_contents($this->filePath, json_encode($workdays, JSON_PRETTY_PRINT));
@@ -52,10 +59,19 @@ final class JsonWorkdayRepository
             ? \DateTimeImmutable::createFromFormat('H:i', $data['endTime'])
             : null;
 
-        return new Workday(
+        $workday = new Workday(
             \DateTimeImmutable::createFromFormat('d.m.Y', $data['date']),
             \DateTimeImmutable::createFromFormat('H:i', $data['startTime']),
             $endTime ?: null
         );
+
+        foreach ($data['pauses'] ?? [] as $pauseData) {
+            $workday->addPause(new Pause(
+                \DateTimeImmutable::createFromFormat('H:i', $pauseData['startTime']),
+                \DateTimeImmutable::createFromFormat('H:i', $pauseData['endTime']),
+            ));
+        }
+
+        return $workday;
     }
 }
