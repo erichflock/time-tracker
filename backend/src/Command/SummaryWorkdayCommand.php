@@ -7,14 +7,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Repository\JsonWorkdayRepository;
+use App\Service\WorkdayService;
 use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:summary')]
 final class SummaryWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
-        private JsonWorkdayRepository $repository,
+        private WorkdayService $workdayService,
     ) {
         parent::__construct();
     }
@@ -28,34 +28,14 @@ final class SummaryWorkdayCommand extends AbstractWorkdayCommand
     {
         $date = DateTimeInputParser::parseDate($input->getArgument('date'));
 
-        $dateKey = $date->format('d.m.Y');
-        $workday = $this->repository->find($dateKey);
-        if (!$workday) {
-            $output->writeln(sprintf('Workday not found for date %s', $dateKey));
-            return Command::FAILURE;
-        }
+        $summary = $this->workdayService->getSummary($date);
 
-        $pausesMinutes = 0;
-        foreach ($workday->getPauses() as $pause) {
-            $pauseInterval = $pause->getStartTime()->diff($pause->getEndTime());
-            $pausesMinutes += ($pauseInterval->h * 60) + $pauseInterval->i;
-        }
+        if ($summary->totalWorkedTimeInMinutes) {
+            $output->writeln(sprintf('Total worked time: %02d:%02d hours', intdiv($summary->totalWorkedTimeInMinutes, 60), $summary->totalWorkedTimeInMinutes % 60));
+        } 
 
-        $endTime = $workday->getEndTime();
-        if ($endTime) {
-            $workedInterval = $workday->getStartTime()->diff($endTime);
-            $totalMinutes = ($workedInterval->h * 60) + $workedInterval->i - $pausesMinutes;
-            $output->writeln(sprintf(
-                'Total time for workday %s: %02d:%02d hours',
-                $dateKey,
-                intdiv($totalMinutes, 60),
-                $totalMinutes % 60
-            ));
-        } else {
-            $expectedEndTime = $workday->getStartTime()
-                ->modify('+8 hours')
-                ->add(new \DateInterval(sprintf('PT%dM', $pausesMinutes)));
-            $output->writeln(sprintf('Expected end time for workday %s: %s', $dateKey, $expectedEndTime->format('H:i')));
+        if ($summary->expectedEndTime) {
+            $output->writeln(sprintf('Expected end time: %s', $summary->expectedEndTime->format('H:i')));
         }
 
         return Command::SUCCESS;

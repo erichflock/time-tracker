@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Repository\JsonWorkdayRepository;
 use App\Model\Workday;
 use App\Model\Pause;
+use App\Dto\WorkdaySummary;
 
 final class WorkdayService
 {
@@ -54,5 +55,33 @@ final class WorkdayService
         $this->repository->save($workday);
 
         return $pause;
+    }
+
+    public function getSummary(\DateTimeImmutable $date): WorkdaySummary
+    {
+        $workday = $this->findWorkday($date);
+
+        $pausesMinutes = 0;
+        foreach ($workday->getPauses() as $pause) {
+            $pauseInterval = $pause->getStartTime()->diff($pause->getEndTime());
+            $pausesMinutes += ($pauseInterval->h * 60) + $pauseInterval->i;
+        }
+
+        $endTime = $workday->getEndTime();
+        $totalWorkedTimeInMinutes = null;
+        $expectedEndTime = null;
+
+        if ($endTime) {
+            $workedInterval = $workday->getStartTime()->diff($endTime);
+            $totalWorkedTimeInMinutes = ($workedInterval->h * 60) + $workedInterval->i - $pausesMinutes;
+        } else {
+            $expectedEndTime = $workday->getStartTime()
+                ->modify('+8 hours')
+                ->add(new \DateInterval(sprintf('PT%dM', $pausesMinutes)));
+        }
+
+        $summary = new WorkdaySummary($totalWorkedTimeInMinutes, $expectedEndTime);
+        
+        return $summary;
     }
 }
