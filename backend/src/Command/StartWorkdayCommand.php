@@ -9,12 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Model\Workday;
 use App\Repository\JsonWorkdayRepository;
+use App\Service\WorkdayService;
 
 #[AsCommand(name: 'workday:start')]
 final class StartWorkdayCommand extends Command
 {
     public function __construct(
         private JsonWorkdayRepository $repository,
+        private WorkdayService $workdayService,
     ) {
         parent::__construct();
     }
@@ -40,9 +42,7 @@ final class StartWorkdayCommand extends Command
             return Command::FAILURE;
         }
 
-        $workday = new Workday($date, $startTime, null);
-
-        $this->repository->save($workday);
+        $this->workdayService->startWorkday($date, $startTime);
 
         return Command::SUCCESS;
     }
