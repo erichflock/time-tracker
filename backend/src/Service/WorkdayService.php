@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Repository\JsonWorkdayRepository;
 use App\Model\Workday;
-use Symfony\Component\Console\Output\OutputInterface;
+use App\Model\Pause;
 
 final class WorkdayService
 {
@@ -43,5 +43,16 @@ final class WorkdayService
     public function findAllWorkdays(): array
     {
         return $this->repository->findAll();
+    }
+
+    public function addPause(\DateTimeImmutable $date, \DateTimeImmutable $startTime, \DateTimeImmutable $endTime): Pause
+    {
+        $workday = $this->findWorkday($date);
+
+        $pause = new Pause($startTime, $endTime);
+        $workday->addPause($pause);
+        $this->repository->save($workday);
+
+        return $pause;
     }
 }
