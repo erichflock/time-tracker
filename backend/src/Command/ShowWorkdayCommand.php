@@ -7,14 +7,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Repository\JsonWorkdayRepository;
+use App\Service\WorkdayService;
 use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:show')]
 final class ShowWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
-        private JsonWorkdayRepository $repository,
+        private WorkdayService $workdayService,
     ) {
         parent::__construct();
     }
@@ -28,14 +28,12 @@ final class ShowWorkdayCommand extends AbstractWorkdayCommand
     {
         $date = DateTimeInputParser::parseDate($input->getArgument('date'));
 
-        $workday = $this->repository->find($date->format('d.m.Y'));
+        $workday = $this->workdayService->findWorkday($date);
 
-        if (!$workday) {
-            $output->writeln(sprintf('Workday not found for date %s', $date->format('d.m.Y')));
-        } else {
-            $output->writeln(sprintf('Workday found for date %s', $workday->getDate()->format('d.m.Y')));
-            $output->writeln(sprintf('Start time: %s', $workday->getStartTime()->format('H:i')));
-        }
+        $output->writeln(sprintf('Workday found for date %s', $workday->getDate()->format('d.m.Y')));
+        $output->writeln(sprintf('Start time: %s', $workday->getStartTime()->format('H:i')));
+        $output->writeln(sprintf('End time: %s', $workday->getEndTime()?->format('H:i') ?? 'N/A'));
+        $output->writeln(sprintf('Pauses: %s', count($workday->getPauses())));
 
         return Command::SUCCESS;
     }

@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Repository\JsonWorkdayRepository;
 use App\Model\Workday;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class WorkdayService
 {
@@ -24,8 +25,18 @@ final class WorkdayService
         if (!$workday) {
             throw new \Exception('Workday not found');
         }
-        
+
         $workday->setEndTime($endTime);
         $this->repository->save($workday);
+    }
+
+    public function findWorkday(\DateTimeImmutable $date): Workday
+    {
+        $workday = $this->repository->find($date->format('d.m.Y'));
+        if (!$workday) {
+            throw new \Exception('Workday not found');
+        }
+
+        return $workday;
     }
 }
