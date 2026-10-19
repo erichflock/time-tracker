@@ -39,4 +39,9 @@ final class WorkdayService
 
         return $workday;
     }
+
+    public function findAllWorkdays(): array
+    {
+        return $this->repository->findAll();
+    }
 }
