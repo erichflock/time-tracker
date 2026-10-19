@@ -7,13 +7,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Repository\JsonWorkdayRepository;
+use App\Service\WorkdayService;
+use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:end')]
-final class EndWorkdayCommand extends Command
+final class EndWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
-        private JsonWorkdayRepository $repository,
+        private WorkdayService $workdayService,
     ) {
         parent::__construct();
     }
@@ -24,28 +25,12 @@ final class EndWorkdayCommand extends Command
         $this->addArgument('endTime', InputArgument::OPTIONAL, 'The end time of the workday', '17:00');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = \DateTimeImmutable::createFromFormat('d.m.Y', $input->getArgument('date'));
-        if (!$date) {
-            $output->writeln(sprintf('Invalid date format %s', $input->getArgument('date')));
-            return Command::FAILURE;
-        }
+        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
+        $endTime = DateTimeInputParser::parseTime($input->getArgument('endTime'), 'end time');
 
-        $endTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('endTime'));
-        if (!$endTime) {
-            $output->writeln(sprintf('Invalid end time format %s', $input->getArgument('endTime')));
-            return Command::FAILURE;
-        }   
-
-        $workday = $this->repository->find($date->format('d.m.Y'));
-        if (!$workday) {
-            $output->writeln(sprintf('Workday not found for date %s', $date->format('d.m.Y')));
-            return Command::FAILURE;
-        }
-
-        $workday->setEndTime($endTime);
-        $this->repository->save($workday);
+        $this->workdayService->endWorkday($date, $endTime);
 
         return Command::SUCCESS;
     }

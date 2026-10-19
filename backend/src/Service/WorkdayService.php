@@ -17,4 +17,15 @@ final class WorkdayService
         $workday = new Workday($date, $startTime, null, []);
         $this->repository->save($workday);
     }
+
+    public function endWorkday(\DateTimeImmutable $date, \DateTimeImmutable $endTime): void
+    {
+        $workday = $this->repository->find($date->format('d.m.Y'));
+        if (!$workday) {
+            throw new \Exception('Workday not found');
+        }
+        
+        $workday->setEndTime($endTime);
+        $this->repository->save($workday);
+    }
 }

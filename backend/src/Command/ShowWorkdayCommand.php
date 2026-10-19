@@ -8,9 +8,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Repository\JsonWorkdayRepository;
+use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:show')]
-final class ShowWorkdayCommand extends Command
+final class ShowWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
         private JsonWorkdayRepository $repository,
@@ -23,14 +24,10 @@ final class ShowWorkdayCommand extends Command
         $this->addArgument('date', InputArgument::OPTIONAL, 'The date of the workday (d.m.Y)', date('d.m.Y'));
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = \DateTimeImmutable::createFromFormat('d.m.Y', $input->getArgument('date'));
-        if (!$date) {
-            $output->writeln(sprintf('Invalid date format %s', $input->getArgument('date')));
-            return Command::FAILURE;
-        }
-        
+        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
+
         $workday = $this->repository->find($date->format('d.m.Y'));
 
         if (!$workday) {

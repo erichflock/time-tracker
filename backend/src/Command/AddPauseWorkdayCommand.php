@@ -9,16 +9,17 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Repository\JsonWorkdayRepository;
 use App\Model\Pause;
+use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:add-pause')]
-final class AddPauseWorkdayCommand extends Command
+final class AddPauseWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
         private JsonWorkdayRepository $repository,
     ) {
         parent::__construct();
     }
-    
+
     protected function configure()
     {
         $this->addArgument('date', InputArgument::REQUIRED, 'The date of the workday');
@@ -26,37 +27,24 @@ final class AddPauseWorkdayCommand extends Command
         $this->addArgument('endTime', InputArgument::REQUIRED, 'The end time of the pause');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = $input->getArgument('date');
-        if (!$date) {
-            $output->writeln(sprintf('Invalid date format %s', $input->getArgument('date')));
-            return Command::FAILURE;
-        }
+        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
+        $startTime = DateTimeInputParser::parseTime($input->getArgument('startTime'), 'start time');
+        $endTime = DateTimeInputParser::parseTime($input->getArgument('endTime'), 'end time');
 
-        $startTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('startTime'));
-        if (!$startTime) {
-            $output->writeln(sprintf('Invalid start time format %s', $input->getArgument('startTime')));
-            return Command::FAILURE;
-        }
-
-        $endTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('endTime'));
-        if (!$endTime) {
-            $output->writeln(sprintf('Invalid end time format %s', $input->getArgument('endTime')));
-            return Command::FAILURE;
-        }
-
-        $workday = $this->repository->find($date);
+        $dateKey = $date->format('d.m.Y');
+        $workday = $this->repository->find($dateKey);
         if (!$workday) {
-            $output->writeln(sprintf('Workday not found for date %s', $date));
+            $output->writeln(sprintf('Workday not found for date %s', $dateKey));
             return Command::FAILURE;
         }
-        
+
         $pause = new Pause($startTime, $endTime);
         $workday->addPause($pause);
         $this->repository->save($workday);
 
-        $output->writeln(sprintf('Pause added to workday %s', $date));
+        $output->writeln(sprintf('Pause added to workday %s', $dateKey));
         return Command::SUCCESS;
     }
 }

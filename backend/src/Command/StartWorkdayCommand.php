@@ -7,15 +7,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Model\Workday;
-use App\Repository\JsonWorkdayRepository;
 use App\Service\WorkdayService;
+use App\Util\DateTimeInputParser;
 
 #[AsCommand(name: 'workday:start')]
-final class StartWorkdayCommand extends Command
+final class StartWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
-        private JsonWorkdayRepository $repository,
         private WorkdayService $workdayService,
     ) {
         parent::__construct();
@@ -28,19 +26,10 @@ final class StartWorkdayCommand extends Command
         ->addArgument('startTime', InputArgument::OPTIONAL, 'The start time of the workday');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = \DateTimeImmutable::createFromFormat('d.m.Y', $input->getArgument('date'));
-        if (!$date) {
-            $output->writeln(sprintf('Invalid date format %s', $input->getArgument('date')));
-            return Command::FAILURE;
-        }
-
-        $startTime = \DateTimeImmutable::createFromFormat('H:i', $input->getArgument('startTime'));
-        if (!$startTime) {
-            $output->writeln(sprintf('Invalid start time format %s', $input->getArgument('startTime')));
-            return Command::FAILURE;
-        }
+        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
+        $startTime = DateTimeInputParser::parseTime($input->getArgument('startTime'), 'start time');
 
         $this->workdayService->startWorkday($date, $startTime);
 
