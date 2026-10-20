@@ -4,20 +4,30 @@ namespace App\Util;
 
 final class DateTimeInputParser
 {
-    private const DATE_FORMAT = 'd.m.Y';
-    private const TIME_FORMAT = 'H:i';
+    public const DATE_FORMAT = 'd.m.Y';
+    public const TIME_FORMAT = 'H:i';
 
-    public static function parseDate(?string $value, string $label = 'date'): \DateTimeImmutable
+    public function parseDate(?string $value, string $label = 'date'): \DateTimeImmutable
     {
-        return self::parseOrFail($value, self::DATE_FORMAT, $label);
+        return $this->parseOrFail($value, self::DATE_FORMAT, $label);
     }
 
-    public static function parseTime(?string $value, string $label = 'time'): \DateTimeImmutable
+    public function parseTime(?string $value, string $label = 'time'): \DateTimeImmutable
     {
-        return self::parseOrFail($value, self::TIME_FORMAT, $label);
+        return $this->parseOrFail($value, self::TIME_FORMAT, $label);
     }
 
-    private static function parseOrFail(?string $value, string $format, string $label): \DateTimeImmutable
+    public function formatDate(\DateTimeImmutable $date): string
+    {
+        return $date->format(self::DATE_FORMAT);
+    }
+
+    public function formatTime(\DateTimeImmutable $time): string
+    {
+        return $time->format(self::TIME_FORMAT);
+    }
+
+    private function parseOrFail(?string $value, string $format, string $label): \DateTimeImmutable
     {
         if ($value === null || $value === '') {
             throw new \InvalidArgumentException(sprintf('Invalid %s format %s', $label, $value ?? ''));

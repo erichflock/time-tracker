@@ -15,6 +15,7 @@ final class EndWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
         private WorkdayService $workdayService,
+        private DateTimeInputParser $dateTimeInputParser,
     ) {
         parent::__construct();
     }
@@ -27,8 +28,8 @@ final class EndWorkdayCommand extends AbstractWorkdayCommand
 
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
-        $endTime = DateTimeInputParser::parseTime($input->getArgument('endTime'), 'end time');
+        $date = $this->dateTimeInputParser->parseDate($input->getArgument('date'));
+        $endTime = $this->dateTimeInputParser->parseTime($input->getArgument('endTime'), 'end time');
 
         $this->workdayService->endWorkday($date, $endTime);
 

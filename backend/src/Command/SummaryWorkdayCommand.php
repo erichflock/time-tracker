@@ -15,6 +15,7 @@ final class SummaryWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
         private WorkdayService $workdayService,
+        private DateTimeInputParser $dateTimeInputParser,
     ) {
         parent::__construct();
     }
@@ -26,7 +27,7 @@ final class SummaryWorkdayCommand extends AbstractWorkdayCommand
 
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
+        $date = $this->dateTimeInputParser->parseDate($input->getArgument('date'));
 
         $summary = $this->workdayService->getSummary($date);
 
@@ -35,7 +36,7 @@ final class SummaryWorkdayCommand extends AbstractWorkdayCommand
         } 
 
         if ($summary->expectedEndTime) {
-            $output->writeln(sprintf('Expected end time: %s', $summary->expectedEndTime->format('H:i')));
+            $output->writeln(sprintf('Expected end time: %s', $this->dateTimeInputParser->formatTime($summary->expectedEndTime)));
         }
 
         return Command::SUCCESS;

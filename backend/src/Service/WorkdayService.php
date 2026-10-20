@@ -6,13 +6,17 @@ use App\Repository\JsonWorkdayRepository;
 use App\Model\Workday;
 use App\Model\Pause;
 use App\Dto\WorkdaySummary;
+use App\Util\DateTimeInputParser;
 use App\Util\DateValidator;
+use App\Util\TimeValidator;
 
 final class WorkdayService
 {
     public function __construct(
         private JsonWorkdayRepository $repository,
+        private DateTimeInputParser $dateTimeInputParser,
         private DateValidator $dateValidator,
+        private TimeValidator $timeValidator,
     ) {
     }
 
@@ -25,18 +29,20 @@ final class WorkdayService
 
     public function endWorkday(\DateTimeImmutable $date, \DateTimeImmutable $endTime): void
     {
-        $workday = $this->repository->find($date->format('d.m.Y'));
+        $workday = $this->repository->find($this->dateTimeInputParser->formatDate($date));
         if (!$workday) {
             throw new \Exception('Workday not found');
         }
 
+        $this->timeValidator->assertReasonableWorkdayEndTime($workday->getStartTime(), $endTime);
+        
         $workday->setEndTime($endTime);
         $this->repository->save($workday);
     }
 
     public function findWorkday(\DateTimeImmutable $date): Workday
     {
-        $workday = $this->repository->find($date->format('d.m.Y'));
+        $workday = $this->repository->find($this->dateTimeInputParser->formatDate($date));
         if (!$workday) {
             throw new \Exception('Workday not found');
         }

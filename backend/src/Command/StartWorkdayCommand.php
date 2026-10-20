@@ -15,6 +15,7 @@ final class StartWorkdayCommand extends AbstractWorkdayCommand
 {
     public function __construct(
         private WorkdayService $workdayService,
+        private DateTimeInputParser $dateTimeInputParser,
     ) {
         parent::__construct();
     }
@@ -28,8 +29,8 @@ final class StartWorkdayCommand extends AbstractWorkdayCommand
 
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
-        $date = DateTimeInputParser::parseDate($input->getArgument('date'));
-        $startTime = DateTimeInputParser::parseTime($input->getArgument('startTime'), 'start time');
+        $date = $this->dateTimeInputParser->parseDate($input->getArgument('date'));
+        $startTime = $this->dateTimeInputParser->parseTime($input->getArgument('startTime'), 'start time');
 
         $this->workdayService->startWorkday($date, $startTime);
 
