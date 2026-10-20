@@ -6,16 +6,19 @@ use App\Repository\JsonWorkdayRepository;
 use App\Model\Workday;
 use App\Model\Pause;
 use App\Dto\WorkdaySummary;
+use App\Util\DateValidator;
 
 final class WorkdayService
 {
     public function __construct(
         private JsonWorkdayRepository $repository,
+        private DateValidator $dateValidator,
     ) {
     }
 
     public function startWorkday(\DateTimeImmutable $date, \DateTimeImmutable $startTime): void
     {
+        $this->dateValidator->assertReasonableWorkdayDate($date);
         $workday = new Workday($date, $startTime, null, []);
         $this->repository->save($workday);
     }
