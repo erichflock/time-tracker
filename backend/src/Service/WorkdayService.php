@@ -58,7 +58,7 @@ final class WorkdayService
     public function addPause(\DateTimeImmutable $date, \DateTimeImmutable $startTime, \DateTimeImmutable $endTime): Pause
     {
         $workday = $this->findWorkday($date);
-
+        $this->timeValidator->assertReasonableWorkdayPause($startTime, $endTime, $workday);
         $pause = new Pause($startTime, $endTime);
         $workday->addPause($pause);
         $this->repository->save($workday);
