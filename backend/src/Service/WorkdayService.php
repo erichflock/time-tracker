@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Repository\JsonWorkdayRepository;
+use App\Repository\WorkdayRepositoryInterface;
 use App\Model\Workday;
 use App\Model\Pause;
 use App\Dto\WorkdaySummary;
@@ -13,7 +13,7 @@ use App\Util\TimeValidator;
 final class WorkdayService
 {
     public function __construct(
-        private JsonWorkdayRepository $repository,
+        private WorkdayRepositoryInterface $repository,
         private DateTimeInputParser $dateTimeInputParser,
         private DateValidator $dateValidator,
         private TimeValidator $timeValidator,

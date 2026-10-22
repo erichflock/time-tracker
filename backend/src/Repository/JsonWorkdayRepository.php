@@ -6,7 +6,7 @@ use App\Model\Workday;
 use App\Model\Pause;
 use App\Util\DateTimeInputParser;
 
-final class JsonWorkdayRepository
+final class JsonWorkdayRepository implements WorkdayRepositoryInterface
 {
     private string $filePath;
 
