@@ -1,2 +1,4 @@
 backend/.env.dev
 backend/.env.test
+.env
+backend/.env
