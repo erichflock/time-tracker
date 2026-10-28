@@ -353,17 +353,6 @@ Use small GitHub PRs even when reviewing with AI:
 12. q1-hardening-final-review
 
 
-What I Would Deliberately Skip From The Team Plan
-=================================================
-
-For your solo version, skip these unless you specifically want extra difficulty:
-
-- Elasticsearch. Reports and date filtering are more useful for this app and simpler to reason about.
-- Native WebView embedding. It is less relevant if the goal is personal full-stack practice.
-- Complex team branch model. Normal GitHub feature branches are enough.
-- Large review ceremony. Replace it with concise PR descriptions, screenshots, test evidence, and AI review prompts.
-
-
 Final App Capabilities
 ======================
 
