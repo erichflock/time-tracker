@@ -31,10 +31,13 @@ final class ShowWorkdayCommand extends AbstractWorkdayCommand
 
         $workday = $this->workdayService->findWorkday($date);
 
-        $output->writeln(sprintf('Workday found for date %s', $this->dateTimeInputParser->formatDate($workday->getDate())));
+        $output->writeln(sprintf('Workday found for date %s', $workday->getDate()));
         $output->writeln(sprintf('Start time: %s', $this->dateTimeInputParser->formatTime($workday->getStartTime())));
         $output->writeln(sprintf('End time: %s', $workday->getEndTime() ? $this->dateTimeInputParser->formatTime($workday->getEndTime()) : 'N/A'));
         $output->writeln(sprintf('Pauses: %s', count($workday->getPauses())));
+        foreach ($workday->getPauses() as $pause) {
+            $output->writeln(sprintf('%s - %s', $this->dateTimeInputParser->formatTime($pause->getStartTime()), $this->dateTimeInputParser->formatTime($pause->getEndTime())));
+        }
 
         return Command::SUCCESS;
     }

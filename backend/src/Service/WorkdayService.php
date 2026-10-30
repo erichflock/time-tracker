@@ -3,8 +3,8 @@
 namespace App\Service;
 
 use App\Repository\WorkdayRepositoryInterface;
-use App\Model\Workday;
-use App\Model\Pause;
+use App\Entity\Workday;
+use App\Entity\Pause;
 use App\Dto\WorkdaySummary;
 use App\Util\DateTimeInputParser;
 use App\Util\DateValidator;
@@ -23,13 +23,13 @@ final class WorkdayService
     public function startWorkday(\DateTimeImmutable $date, \DateTimeImmutable $startTime): void
     {
         $this->dateValidator->assertReasonableWorkdayDate($date);
-        $workday = new Workday($date, $startTime, null, []);
+        $workday = new Workday($date, $startTime);
         $this->repository->save($workday);
     }
 
     public function endWorkday(\DateTimeImmutable $date, \DateTimeImmutable $endTime): void
     {
-        $workday = $this->repository->find($this->dateTimeInputParser->formatDate($date));
+        $workday = $this->repository->findByDate($this->dateTimeInputParser->formatDate($date));
         if (!$workday) {
             throw new \Exception('Workday not found');
         }
@@ -42,7 +42,7 @@ final class WorkdayService
 
     public function findWorkday(\DateTimeImmutable $date): Workday
     {
-        $workday = $this->repository->find($this->dateTimeInputParser->formatDate($date));
+        $workday = $this->repository->findByDate($this->dateTimeInputParser->formatDate($date));
         if (!$workday) {
             throw new \Exception('Workday not found');
         }

@@ -21,9 +21,9 @@ final class ListWorkdaysCommand extends Command
     {
         $workdays = $this->workdayService->findAllWorkdays();
         foreach ($workdays as $workday) {
-            $output->writeln(sprintf('%s: %s - %s', $workday->getDate()->format('d.m.Y'), $workday->getStartTime()->format('H:i'), $workday->getEndTime() ? $workday->getEndTime()->format('H:i') : 'N/A'));
+            $output->writeln(sprintf('%s: %s - %s', $workday->getDate(), $workday->getStartTime()->format('H:i'), $workday->getEndTime() ? $workday->getEndTime()->format('H:i') : 'N/A'));
             foreach ($workday->getPauses() as $pause) {
-                $output->writeln(sprintf('  - %s - %s', $pause->getStartTime()->format('H:i'), $pause->getEndTime()->format('H:i')));
+                $output->writeln(sprintf('%s - %s', $pause->getStartTime()->format('H:i'), $pause->getEndTime()->format('H:i')));
             }
             $output->writeln('');
         }

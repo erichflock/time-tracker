@@ -2,8 +2,8 @@
 
 namespace App\Util;
 
-use App\Model\Workday;
-use App\Model\Pause;
+use App\Entity\Workday;
+use App\Entity\Pause;
 
 final class TimeValidator
 {

@@ -5,8 +5,8 @@ namespace App\Tests\Util;
 use App\Util\TimeValidator;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
-use App\Model\Workday;
-use App\Model\Pause;
+use App\Entity\Workday;
+use App\Entity\Pause;
 
 class TimeValidatorTest extends TestCase
 {
